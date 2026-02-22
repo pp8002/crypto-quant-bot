@@ -78,7 +78,7 @@ def run_state_machine():
                 f"Squeeze: {latest_candle['squeeze_on']}"
             )
             print(status_report)
-            # send_telegram_msg(status_report) # Uncomment this if you want an hourly buzz
+            send_telegram_msg(status_report)
 
             if state == "FLAT":
                 if latest_candle['long_signal']:
@@ -87,11 +87,12 @@ def run_state_machine():
                     execute_trade(OrderSide.SELL, TRADE_QTY)
                 else:
                     print("No anomaly detected. Remaining in cash.")
-                    
+                    no_trade_msg = "No anomaly detected. Remaining in cash."
+                    print(no_trade_msg)
+                    send_telegram_msg(no_trade_msg)
             elif state == "LONG":
                 if current_price <= latest_candle['long_stop_loss']:
                     execute_trade(OrderSide.SELL, TRADE_QTY)
-                    
             elif state == "SHORT":
                 if current_price >= latest_candle['short_stop_loss']:
                     execute_trade(OrderSide.BUY, TRADE_QTY)

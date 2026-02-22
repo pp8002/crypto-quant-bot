@@ -1,5 +1,7 @@
 import os
 import time
+import requests
+import os
 from dotenv import load_dotenv
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
@@ -95,3 +97,12 @@ def run_state_machine():
 if __name__ == "__main__":
     import pandas as pd # Imported here just for the timestamp printing
     run_state_machine()
+
+load_dotenv()
+
+def send_telegram_msg(message):
+    token = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    if token and chat_id:
+        url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
+        requests.get(url) 

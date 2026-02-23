@@ -22,13 +22,30 @@ SYMBOL = "BTC/USD"
 TRADE_QTY = 0.1 
 
 def send_telegram_msg(message):
-    """Sends a notification to your phone via Telegram."""
-    if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}"
-        try:
-            requests.get(url)
-        except Exception as e:
-            print(f"Telegram Failed: {e}")
+    """Safely sends a Telegram message and loudly reports any errors."""
+    # 1. Fetch the keys fresh every time it runs
+    token = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    
+    # 2. Check if the keys are missing
+    if not token or not chat_id:
+        print("🚨 TELEGRAM ERROR: Keys are missing from your .env file!")
+        return
+        
+    # 3. Safely package the text so newlines and emojis don't break the internet
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message
+    }
+    
+    # 4. Execute and report any blocks
+    try:
+        response = requests.get(url, params=payload)
+        if response.status_code != 200:
+            print(f"🚨 Telegram API Blocked the Message: {response.text}")
+    except Exception as e:
+        print(f"🚨 Failed to connect to Telegram: {e}")
 
 def get_current_state():
     try:

@@ -80,13 +80,16 @@ def run_state_machine():
             print(status_report)
             send_telegram_msg(status_report)
 
+            # --- THE LOGIC ROUTER ---
             if state == "FLAT":
                 if latest_candle['long_signal']:
                     execute_trade(OrderSide.BUY, TRADE_QTY)
                 elif latest_candle['short_signal']:
-                    execute_trade(OrderSide.SELL, TRADE_QTY)
+                    # We caught a crash, but we cannot short spot crypto. 
+                    safe_msg = "📉 Market dropping! Spot crypto cannot be shorted. Staying in cash to protect capital."
+                    print(safe_msg)
+                    send_telegram_msg(safe_msg)
                 else:
-                    print("No anomaly detected. Remaining in cash.")
                     no_trade_msg = "No anomaly detected. Remaining in cash."
                     print(no_trade_msg)
                     send_telegram_msg(no_trade_msg)
